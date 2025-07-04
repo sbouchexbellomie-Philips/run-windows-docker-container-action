@@ -81,16 +81,18 @@ runs:
         Write-Host "::endgroup::"
     - name: settings
       id: settings
-      run: >-
+      run: |
+          Write-Host "::group::Settings"
           ${{ github.action_path }}/src/parse_input_paths.ps1 -githubWorkSpace "${{ github.workspace }}" -workspacePath "@${{ inputs.workspace_path }}" -mappingPath "@${{ inputs.mapping_path }}" -workPath "@${{ inputs.work_path }}";
           ${{ github.action_path }}/src/parse_input_extra_args.ps1 -envNames "@${{ inputs.env_names }}" -entryPoint "@${{ inputs.entrypoint }}" -extraArgs "@${{ inputs.extra_args }}";
           ${{ github.action_path }}/src/assign_default_environment_variables.ps1;
+          Write-Host "::endgroup::"
       shell: powershell
     - name: docker_login
       id: docker_login
       if: inputs.registry_authentication == 'true'
       shell: powershell
-      run: >-
+      run: |
         Write-Host "::group::Docker Login"
         docker login ${{ inputs.registry_repository }} -u ${{ inputs.registry_username }} -p ${{ inputs.registry_token }}
         Write-Host "::endgroup::"
@@ -107,7 +109,7 @@ runs:
         Write-Host "::endgroup::"
       shell: powershell
     - name: Run
-      run: >-
+      run: |
         $eventPath = Split-Path -Path "${env:GITHUB_EVENT_PATH}" -Parent;
 
         Write-Host "::group::Docker Run"
@@ -129,7 +131,7 @@ runs:
       id: docker_logout
       if: inputs.registry_authentication == 'true'
       shell: powershell
-      run: >-
+      run: |
         Write-Host "::group::Docker Logout"
         docker logout ${{ inputs.registry_repository }}
         Write-Host "::endgroup::"
