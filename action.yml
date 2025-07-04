@@ -76,46 +76,46 @@ runs:
       if: inputs.show_system_info == 'true'
       shell: powershell
       run: |
-        Write-Host "::group::System Information"
+        echo "::group::System Information"
         & systeminfo
-        Write-Host "::endgroup::"
+        echo "::endgroup::"
     - name: settings
       id: settings
       run: |
-          Write-Host "::group::Settings"
+          echo "::group::Settings"
           ${{ github.action_path }}/src/parse_input_paths.ps1 -githubWorkSpace "${{ github.workspace }}" -workspacePath "@${{ inputs.workspace_path }}" -mappingPath "@${{ inputs.mapping_path }}" -workPath "@${{ inputs.work_path }}";
           ${{ github.action_path }}/src/parse_input_extra_args.ps1 -envNames "@${{ inputs.env_names }}" -entryPoint "@${{ inputs.entrypoint }}" -extraArgs "@${{ inputs.extra_args }}";
           ${{ github.action_path }}/src/assign_default_environment_variables.ps1;
-          Write-Host "::endgroup::"
+          echo "::endgroup::"
       shell: powershell
     - name: docker_login
       id: docker_login
       if: inputs.registry_authentication == 'true'
       shell: powershell
       run: |
-        Write-Host "::group::Docker Login"
+        echo "::group::Docker Login"
         docker login ${{ inputs.registry_repository }} -u ${{ inputs.registry_username }} -p ${{ inputs.registry_token }}
-        Write-Host "::endgroup::"
+        echo "::endgroup::"
     - name: Pre-warm
       if: inputs.pre-warm == 'true'
       run: |
-        Write-Host "::group::Docker Pre-warm"
+        echo "::group::Docker Pre-warm"
         docker run ${{ steps.settings.outputs.extra_args }} --rm --memory=${{ inputs.memory }} -v ${{ steps.settings.outputs.workspace_path }}:${{ steps.settings.outputs.mapping_path }} -w ${{ steps.settings.outputs.work_path }} ${{ inputs.image }} { ${{ inputs.pre-warm-cmd }} }
         exit 0
-        Write-Host "::endgroup::"
+        echo "::endgroup::"
       shell: powershell
     - name: Run
       run: |
         $eventPath = Split-Path -Path "${env:GITHUB_EVENT_PATH}" -Parent;
-        Write-Host "::group::Docker Run"
+        echo "::group::Docker Run"
         docker run ${{ steps.settings.outputs.default_environment_variables }} ${{ steps.settings.outputs.extra_args }} --rm --memory=${{ inputs.memory }} -v ${eventPath}:${eventPath}-v ${{ steps.settings.outputs.workspace_path }}:${{ steps.settings.outputs.mapping_path }} -w ${{ steps.settings.outputs.work_path }} ${{ inputs.image }} { ${{ inputs.run }} }
-        Write-Host "::endgroup::"
+        echo "::endgroup::"
       shell: powershell
     - name: docker_logout
       id: docker_logout
       if: inputs.registry_authentication == 'true'
       shell: powershell
       run: |
-        Write-Host "::group::Docker Logout"
+        echo "::group::Docker Logout"
         docker logout ${{ inputs.registry_repository }}
-        Write-Host "::endgroup::"
+        echo "::endgroup::"
