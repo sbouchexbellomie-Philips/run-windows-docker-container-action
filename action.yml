@@ -58,6 +58,10 @@ inputs:
   registry_repository:
     description: 'Docker registry repository'
     required: false
+  show_system_info:
+    description: 'Show system information'
+    required: false
+    default: 'false'
 
 runs:
   using: "composite"
@@ -68,6 +72,10 @@ runs:
         echo "::error file=run-windows-docker-container-action/action.yml,line=68,col=1,endColumn=1::This action can only run on windows";
         exit -1
       shell: bash
+    - name: systeminfo
+      if: inputs.show_system_info == 'true'
+      shell: powershell
+      run: systeminfo
     - name: settings
       id: settings
       run: >-
