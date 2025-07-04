@@ -100,31 +100,15 @@ runs:
       if: inputs.pre-warm == 'true'
       run: |
         Write-Host "::group::Docker Pre-warm"
-        docker run ${{ steps.settings.outputs.extra_args }} `
-        --rm --memory=${{ inputs.memory }} `
-        -v ${{ steps.settings.outputs.workspace_path }}:${{ steps.settings.outputs.mapping_path }} `
-        -w ${{ steps.settings.outputs.work_path }} `
-        ${{ inputs.image }} { ${{ inputs.pre-warm-cmd }} }
+        docker run ${{ steps.settings.outputs.extra_args }} --rm --memory=${{ inputs.memory }} -v ${{ steps.settings.outputs.workspace_path }}:${{ steps.settings.outputs.mapping_path }} -w ${{ steps.settings.outputs.work_path }} ${{ inputs.image }} { ${{ inputs.pre-warm-cmd }} }
         exit 0
         Write-Host "::endgroup::"
       shell: powershell
     - name: Run
       run: |
         $eventPath = Split-Path -Path "${env:GITHUB_EVENT_PATH}" -Parent;
-
         Write-Host "::group::Docker Run"
-        docker run
-        ${{ steps.settings.outputs.default_environment_variables }}
-        ${{ steps.settings.outputs.extra_args }}
-        --rm
-        --memory=${{ inputs.memory }}
-        -v ${eventPath}:${eventPath}
-        -v ${{ steps.settings.outputs.workspace_path }}:${{ steps.settings.outputs.mapping_path }}
-        -w ${{ steps.settings.outputs.work_path }}
-        ${{ inputs.image }}
-        {
-        ${{ inputs.run }}
-        }
+        docker run ${{ steps.settings.outputs.default_environment_variables }} ${{ steps.settings.outputs.extra_args }} --rm --memory=${{ inputs.memory }} -v ${eventPath}:${eventPath}-v ${{ steps.settings.outputs.workspace_path }}:${{ steps.settings.outputs.mapping_path }} -w ${{ steps.settings.outputs.work_path }} ${{ inputs.image }} { ${{ inputs.run }} }
         Write-Host "::endgroup::"
       shell: powershell
     - name: docker_logout
